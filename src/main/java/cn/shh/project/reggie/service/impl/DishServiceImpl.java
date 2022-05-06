@@ -6,11 +6,13 @@ import cn.shh.project.reggie.pojo.Dish;
 import cn.shh.project.reggie.pojo.DishFlavor;
 import cn.shh.project.reggie.service.DishFlavorService;
 import cn.shh.project.reggie.service.DishService;
+import cn.shh.project.reggie.util.ReggieConstant;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,9 +22,10 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements DishService {
-
     @Autowired
     private DishFlavorService dishFlavorService;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * 新增菜品，同时保存对应的口味数据
@@ -45,6 +48,8 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
         //保存菜品口味数据到菜品口味表dish_flavor
         dishFlavorService.saveBatch(flavors);
 
+        // 清除缓存
+        redisTemplate.delete(ReggieConstant.DISH_LIST_KEY + dishDto.getCategoryId());
     }
 
     /**
@@ -89,5 +94,8 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
         }).collect(Collectors.toList());
 
         dishFlavorService.saveBatch(flavors);
+
+        // 清除缓存
+        redisTemplate.delete(ReggieConstant.DISH_LIST_KEY + dishDto.getCategoryId());
     }
 }

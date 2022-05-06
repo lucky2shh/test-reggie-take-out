@@ -9,10 +9,14 @@ import cn.shh.project.reggie.util.ValidateCodeUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.Map;
+
+import static cn.shh.project.reggie.util.ReggieConstant.LOGIN_CODE_KEY;
 
 @RestController
 @RequestMapping("/user")
@@ -20,6 +24,8 @@ import java.util.Map;
 public class UserController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 发送手机验证码
@@ -74,10 +80,12 @@ public class UserController {
         String code = map.get("code").toString();
 
         //从Session中获取保存的验证码
-        Object codeInSession = session.getAttribute(phone);
+        //Object codeInSession = session.getAttribute(phone);
+
+        String codeNum = stringRedisTemplate.opsForValue().get(LOGIN_CODE_KEY + phone);
 
         //进行验证码的比对（页面提交的验证码和Session中保存的验证码比对）
-        if(codeInSession != null && codeInSession.equals(code)){
+        if(codeNum != null && codeNum.equals(code)){
             //如果能够比对成功，说明登录成功
 
             LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();

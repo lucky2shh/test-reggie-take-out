@@ -8,4 +8,8 @@ public class ReggieConstant {
     public static final Long LOGIN_CODE_TTL = 2L;
     public static final String LOGIN_USER_KEY = "login:token:";
     public static final Long LOGIN_USER_TTL = 36000L;
+
+    // 菜品
+    public static final String DISH_LIST_KEY = "dish:list:";
+    public static final Long DISH_LIST_TTL = 1L;
 }

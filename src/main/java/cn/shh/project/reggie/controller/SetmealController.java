@@ -57,7 +57,7 @@ public class SetmealController {
      * @return
      */
     @GetMapping("/page")
-    public R<Page> page(int page,int pageSize,String name){
+    public R<Page> page(int page,int pageSize, String name){
         //分页构造器对象
         Page<Setmeal> pageInfo = new Page<>(page,pageSize);
         Page<SetmealDto> dtoPage = new Page<>();
@@ -112,7 +112,6 @@ public class SetmealController {
      * @param setmeal
      * @return
      */
-    @Cacheable(value = "setmealCache", key = "#setmeal.categoryId + '_' + #setmeal.status")
     @GetMapping("/list")
     public R<List<Setmeal>> list(Setmeal setmeal){
         LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
@@ -143,6 +142,7 @@ public class SetmealController {
      * @param id
      * @return
      */
+    @Cacheable(value = "setmealCache", key = "#p0", unless = "#result == null")
     @GetMapping("/{id}")
     public R<SetmealDto> getById(@PathVariable Long id){
         SetmealDto setmeal = setmealService.getByIdWithDish(id);
@@ -154,6 +154,7 @@ public class SetmealController {
      * @param setmealDto
      * @return
      */
+    @CacheEvict(value = "setmealCache", allEntries = true)
     @PutMapping
     public R<String> update(@RequestBody SetmealDto setmealDto){
         setmealService.updateWithDish(setmealDto);

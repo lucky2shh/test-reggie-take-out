@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> implements SetmealService {
-
     @Autowired
     private SetmealDishService setmealDishService;
 
@@ -57,7 +56,7 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
         queryWrapper.in(Setmeal::getId,ids);
         queryWrapper.eq(Setmeal::getStatus,1);
 
-        int count = this.count(queryWrapper);
+        Long count = this.count(queryWrapper);
         if(count > 0){
             //如果不能删除，抛出一个业务异常
             throw new CustomException("套餐正在售卖中，不能删除");

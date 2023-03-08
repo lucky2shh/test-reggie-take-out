@@ -1,13 +1,10 @@
 package cn.shh.project.reggie.controller;
 
-import cn.shh.project.reggie.util.BaseContext;
+import cn.shh.project.reggie.common.config.LocalCache;
 import cn.shh.project.reggie.util.R;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import cn.shh.project.reggie.util.BaseContext;
-import cn.shh.project.reggie.util.R;
 import cn.shh.project.reggie.pojo.ShoppingCart;
 import cn.shh.project.reggie.service.ShoppingCartService;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -22,9 +19,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/shoppingCart")
 public class ShoppingCartController {
-
     @Autowired
     private ShoppingCartService shoppingCartService;
+    @Autowired
+    private LocalCache localCache;
 
     /**
      * 添加购物车
@@ -36,7 +34,7 @@ public class ShoppingCartController {
         log.info("购物车数据:{}",shoppingCart);
 
         //设置用户id，指定当前是哪个用户的购物车数据
-        Long currentId = BaseContext.getCurrentId();
+        Long currentId = (Long) localCache.get("userId");
         shoppingCart.setUserId(currentId);
 
         Long dishId = shoppingCart.getDishId();
@@ -81,7 +79,7 @@ public class ShoppingCartController {
     @PostMapping("/sub")
     public R<List<ShoppingCart>> sub(@RequestBody ShoppingCart shoppingCart){
         LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ShoppingCart::getUserId, BaseContext.getCurrentId());
+        queryWrapper.eq(ShoppingCart::getUserId, localCache.get("userId"));
         queryWrapper.eq(shoppingCart.getDishId() != null, ShoppingCart::getDishId, shoppingCart.getDishId());
         queryWrapper.eq(shoppingCart.getSetmealId() != null, ShoppingCart::getSetmealId, shoppingCart.getSetmealId());
         //查询当前菜品或者套餐是否在购物车中
@@ -107,9 +105,8 @@ public class ShoppingCartController {
     @GetMapping("/list")
     public R<List<ShoppingCart>> list(){
         log.info("查看购物车...");
-
         LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ShoppingCart::getUserId,BaseContext.getCurrentId());
+        queryWrapper.eq(ShoppingCart::getUserId, localCache.get("userId"));
         queryWrapper.orderByAsc(ShoppingCart::getCreateTime);
         List<ShoppingCart> list = shoppingCartService.list(queryWrapper);
         return R.success(list);
@@ -123,7 +120,7 @@ public class ShoppingCartController {
     public R<String> clean(){
         //SQL:delete from shopping_cart where user_id = ?
         LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ShoppingCart::getUserId,BaseContext.getCurrentId());
+        queryWrapper.eq(ShoppingCart::getUserId, localCache.get("userId"));
         shoppingCartService.remove(queryWrapper);
         return R.success("清空购物车成功");
     }

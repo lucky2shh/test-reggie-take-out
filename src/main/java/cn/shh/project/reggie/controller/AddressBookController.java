@@ -2,14 +2,12 @@ package cn.shh.project.reggie.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import cn.shh.project.reggie.util.BaseContext;
+import cn.shh.project.reggie.common.config.LocalCache;
 import cn.shh.project.reggie.util.R;
 import cn.shh.project.reggie.pojo.AddressBook;
 import cn.shh.project.reggie.service.AddressBookService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,18 +19,28 @@ import java.util.List;
 @RestController
 @RequestMapping("/addressBook")
 public class AddressBookController {
-
     @Autowired
     private AddressBookService addressBookService;
+
+    @Autowired
+    private LocalCache localCache;
 
     /**
      * 新增
      */
     @PostMapping
     public R<AddressBook> save(@RequestBody AddressBook addressBook) {
-        addressBook.setUserId(BaseContext.getCurrentId());
+        addressBook.setUserId((Long) localCache.get("userId"));
         log.info("addressBook:{}", addressBook);
         addressBookService.save(addressBook);
+        return R.success(addressBook);
+    }
+
+    @PutMapping
+    public R<AddressBook> edit(@RequestBody AddressBook addressBook) {
+        addressBook.setUserId((Long) localCache.get("userId"));
+        log.info("addressBook:{}", addressBook);
+        addressBookService.updateById(addressBook);
         return R.success(addressBook);
     }
 
@@ -43,7 +51,7 @@ public class AddressBookController {
     public R<AddressBook> setDefault(@RequestBody AddressBook addressBook) {
         log.info("addressBook:{}", addressBook);
         LambdaUpdateWrapper<AddressBook> wrapper = new LambdaUpdateWrapper<>();
-        wrapper.eq(AddressBook::getUserId, BaseContext.getCurrentId());
+        wrapper.eq(AddressBook::getUserId, localCache.get("userId"));
         wrapper.set(AddressBook::getIsDefault, 0);
         //SQL:update address_book set is_default = 0 where user_id = ?
         addressBookService.update(wrapper);
@@ -73,7 +81,7 @@ public class AddressBookController {
     @GetMapping("default")
     public R<AddressBook> getDefault() {
         LambdaQueryWrapper<AddressBook> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(AddressBook::getUserId, BaseContext.getCurrentId());
+        queryWrapper.eq(AddressBook::getUserId, localCache.get("userId"));
         queryWrapper.eq(AddressBook::getIsDefault, 1);
 
         //SQL:select * from address_book where user_id = ? and is_default = 1
@@ -91,7 +99,7 @@ public class AddressBookController {
      */
     @GetMapping("/list")
     public R<List<AddressBook>> list(AddressBook addressBook) {
-        addressBook.setUserId(BaseContext.getCurrentId());
+        addressBook.setUserId((Long) localCache.get("userId"));
         log.info("addressBook:{}", addressBook);
 
         //条件构造器

@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AddressBookServiceImpl extends ServiceImpl<AddressBookMapper, AddressBook> implements AddressBookService {
-
     @Override
     public boolean save(AddressBook entity) {
         return super.save(entity);

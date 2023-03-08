@@ -1,10 +1,11 @@
 package cn.shh.project.reggie.common.filter;
 
-import cn.shh.project.reggie.util.BaseContext;
+import cn.shh.project.reggie.common.config.LocalCache;
 import cn.shh.project.reggie.util.R;
 import cn.shh.project.reggie.util.ReggieConstant;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.AntPathMatcher;
 
 import javax.servlet.*;
@@ -18,10 +19,14 @@ import java.io.IOException;
 public class LoginCheckFilter implements Filter {
     private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
 
+    @Autowired
+    private LocalCache localCache;
+
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
+        log.info("拦截请求:{}", request.getRequestURI());
 
         // 放行的请求
         String[] uris = new String[]{
@@ -31,6 +36,7 @@ public class LoginCheckFilter implements Filter {
                 "/front/**",
                 "/user/sendMsg",
                 "/user/login",
+                "/user/logout",
                 "/doc.html",
                 "/webjars/**",
                 "/swagger-resources",
@@ -47,17 +53,17 @@ public class LoginCheckFilter implements Filter {
             return;
         }
         // 4.1、已登录，放行
-        if (request.getSession().getAttribute("employee") != null){
+        if (request.getSession().getAttribute("employeeId") != null){
             filterChain.doFilter(request, response);
-            Long empId = (Long) request.getSession().getAttribute("employee");
-            BaseContext.setCurrentId(empId);
+            Long empId = (Long) request.getSession().getAttribute("employeeId");
+            localCache.set("employeeId", empId);
             return;
         }
         // 4.2、已登录，放行
-        if (request.getSession().getAttribute("user") != null){
+        if (request.getSession().getAttribute("userId") != null){
             filterChain.doFilter(request, response);
-            Long userId = (Long) request.getSession().getAttribute("user");
-            BaseContext.setCurrentId(userId);
+            Long userId = (Long) request.getSession().getAttribute("userId");
+            localCache.set("userId", userId);
             return;
         }
         // 5、未登录，跳到登录页面

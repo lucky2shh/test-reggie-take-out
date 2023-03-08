@@ -29,11 +29,12 @@ public class CommonController {
 
     /**
      * 文件上传
+     *
      * @param file
      * @return
      */
     @PostMapping("/upload")
-    public R<String> upload(MultipartFile file){
+    public R<String> upload(MultipartFile file) {
         //file是一个临时文件，需要转存到指定位置，否则本次请求完成后临时文件会删除
         log.info(file.toString());
 
@@ -47,7 +48,7 @@ public class CommonController {
         //创建一个目录对象
         File dir = new File(basePath);
         //判断当前目录是否存在
-        if(!dir.exists()){
+        if (!dir.exists()) {
             //目录不存在，需要创建
             dir.mkdirs();
         }
@@ -63,11 +64,12 @@ public class CommonController {
 
     /**
      * 文件下载
+     *
      * @param name
      * @param response
      */
     @GetMapping("/download")
-    public void download(String name, HttpServletResponse response){
+    public void download(String name, HttpServletResponse response) {
         FileInputStream fis = null;
         ServletOutputStream sos = null;
 
@@ -80,19 +82,19 @@ public class CommonController {
 
             int len = 0;
             byte[] bytes = new byte[1024];
-            while ((len = fis.read(bytes)) != -1){
-                sos.write(bytes,0,len);
+            while ((len = fis.read(bytes)) != -1) {
+                sos.write(bytes, 0, len);
                 sos.flush();
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             try {
-                if (fis != null){
+                if (fis != null) {
                     fis.close();
                 }
-                if (sos != null){
+                if (sos != null) {
                     sos.close();
                 }
             } catch (IOException e) {

@@ -4,7 +4,7 @@ import cn.shh.project.reggie.common.exception.CustomException;
 import cn.shh.project.reggie.mapper.OrderMapper;
 import cn.shh.project.reggie.pojo.*;
 import cn.shh.project.reggie.service.*;
-import cn.shh.project.reggie.util.BaseContext;
+import cn.shh.project.reggie.common.config.LocalCache;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -22,18 +22,16 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implements OrderService {
-
     @Autowired
     private ShoppingCartService shoppingCartService;
-
     @Autowired
     private UserService userService;
-
     @Autowired
     private AddressBookService addressBookService;
-
     @Autowired
     private OrderDetailService orderDetailService;
+    @Autowired
+    private LocalCache localCache;
 
     /**
      * 用户下单
@@ -42,7 +40,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
     @Transactional
     public void submit(Orders orders) {
         //获得当前用户id
-        Long userId = BaseContext.getCurrentId();
+        Long userId = (Long) localCache.get("userId");
 
         //查询当前用户的购物车数据
         LambdaQueryWrapper<ShoppingCart> wrapper = new LambdaQueryWrapper<>();

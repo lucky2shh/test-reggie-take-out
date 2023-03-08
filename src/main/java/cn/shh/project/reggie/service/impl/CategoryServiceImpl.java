@@ -27,14 +27,14 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         // 1、判断当前分类是否关联的有菜品，若关联则给出提示并返回
         LambdaQueryWrapper<Dish> dishQW = new LambdaQueryWrapper<>();
         dishQW.eq(Dish::getCategoryId, id);
-        int dishCount = dishService.count(dishQW);
+        Long dishCount = dishService.count(dishQW);
         if (dishCount > 0){
             throw new CustomException("当前分类下关联了菜品，不能删除！");
         }
         // 2、判断当前分类是否关联了套餐，若关联则给出提示并返回
         LambdaQueryWrapper<Setmeal> setmealQW = new LambdaQueryWrapper<>();
         setmealQW.eq(Setmeal::getCategoryId, id);
-        int setmealCount = setmealService.count(setmealQW);
+        Long setmealCount = setmealService.count(setmealQW);
         if (setmealCount > 0){
             throw new CustomException("当前分类下关联了套餐，不能删除！");
         }

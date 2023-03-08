@@ -14,6 +14,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
@@ -25,9 +26,10 @@ import java.util.stream.Collectors;
  * 套餐管理
  */
 
+@CacheConfig(cacheNames = {"setmealCache"})
+@Slf4j
 @RestController
 @RequestMapping("/setmeal")
-@Slf4j
 public class SetmealController {
     @Autowired
     private SetmealService setmealService;
@@ -41,7 +43,6 @@ public class SetmealController {
      * @param setmealDto
      * @return
      */
-    @CacheEvict(value = "setmealCache", allEntries = true)
     @PostMapping
     public R<String> save(@RequestBody SetmealDto setmealDto){
         log.info("套餐信息：{}",setmealDto);
@@ -56,6 +57,7 @@ public class SetmealController {
      * @param name
      * @return
      */
+    @CacheEvict(value = "setmealCache", allEntries = true)
     @GetMapping("/page")
     public R<Page> page(int page,int pageSize, String name){
         //分页构造器对象
@@ -112,6 +114,7 @@ public class SetmealController {
      * @param setmeal
      * @return
      */
+    @Cacheable(value = "setmealCache", key = "#setmeal.categoryId")
     @GetMapping("/list")
     public R<List<Setmeal>> list(Setmeal setmeal){
         LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();

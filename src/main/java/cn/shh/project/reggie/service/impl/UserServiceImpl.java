@@ -3,13 +3,11 @@ package cn.shh.project.reggie.service.impl;
 import cn.hutool.core.util.RandomUtil;
 import cn.shh.project.reggie.util.R;
 import cn.shh.project.reggie.util.RegexUtils;
-import cn.shh.project.reggie.util.ReggieConstant;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import cn.shh.project.reggie.pojo.User;
 import cn.shh.project.reggie.mapper.UserMapper;
 import cn.shh.project.reggie.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 

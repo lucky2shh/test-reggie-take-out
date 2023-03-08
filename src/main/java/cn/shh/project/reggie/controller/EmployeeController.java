@@ -4,16 +4,13 @@ import cn.shh.project.reggie.pojo.Employee;
 import cn.shh.project.reggie.service.EmployeeService;
 import cn.shh.project.reggie.util.R;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.time.LocalDateTime;
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/employee")
 public class EmployeeController {
@@ -58,7 +55,7 @@ public class EmployeeController {
         }
 
         // 6、登录成功，将用户ID放入session，返回登录成功
-        request.getSession().setAttribute("employee", emp.getId());
+        request.getSession().setAttribute("employeeId", emp.getId());
         return R.success(emp);
     }
 
@@ -94,7 +91,7 @@ public class EmployeeController {
         // 2、新增员工
         // 2.1、封装数据
         employee.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
-        Long empId = (Long) request.getSession().getAttribute("employee");
+        System.out.println("employee: " + employee);
         // 2.2、新增员工到数据库
         employeeService.save(employee);
         return R.success("新增成功！");
@@ -126,7 +123,7 @@ public class EmployeeController {
      * @param employee
      * @return
      */
-    @PutMapping()
+    @PutMapping
     public R<String> update(HttpServletRequest request, @RequestBody Employee employee){
         Long empId = (Long) request.getSession().getAttribute("employee");
         employeeService.updateById(employee);
